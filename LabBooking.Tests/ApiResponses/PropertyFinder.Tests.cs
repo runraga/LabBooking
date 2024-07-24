@@ -1,7 +1,5 @@
 namespace LabBooking.Tests.ApiResponses;
 
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using LabBookingLib.ApiResponses;
 
