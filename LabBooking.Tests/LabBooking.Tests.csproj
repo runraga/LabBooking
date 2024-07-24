@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LabBooking\LabBooking.csproj" />
+    <ProjectReference Include="..\LabBookingLib\LabBookingLib.csproj" />
   </ItemGroup>
 
 </Project>
