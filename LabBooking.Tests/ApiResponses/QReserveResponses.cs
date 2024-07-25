@@ -196,4 +196,83 @@ public class QReserveGetRatesByResourceResponse_Should
         //Assert
         Assert.True(ResponseHelpers.DictionariesAreEqual<string, int>(expected, result));
     }
+    [Fact]
+    public void GetRatesDict_ThrowsExceptionIfNoRates()
+    {
+        //arrange
+        string jsonString = $@"{{
+                                ""Data"": 
+                                [
+                                ]
+                                }}";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement response = doc.RootElement;
+        QReserveGetRatesByResourceResponse apiResponse = JsonSerializer.Deserialize<QReserveGetRatesByResourceResponse>(response)!;
+
+        //Act & Assert
+        Assert.Throws<KeyNotFoundException>(() => apiResponse.GetRatesDict());
+    }
+}
+public class QReserveGetUserInfoResponse_Should
+{
+    [Fact]
+    public void GetUserGroups_ReturnsListOfUserGroupIds()
+    {
+        string jsonString = $@"
+                        {{
+                            ""Data"": 
+                            [
+                            {{
+                            ""_id"": ""669f6d6c6ee12e497ebcc796"",
+                            ""name"": ""Alice"",
+                            ""email"": ""alice@example.com"",
+                            ""user_groups"": 
+                                [
+                                {{
+                                    ""_id"": ""669f6d6c6ee12e497ebcc794"",
+                                    ""name"": ""internal""
+                                }},
+                                {{
+                                    ""_id"": ""669f6d6c6ee12e497ebcc795"",
+                                    ""name"": ""external""
+                                }}
+                                ]
+                            }}
+                            ]
+                        }}";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement response = doc.RootElement;
+        QReserveGetUserInfoResponse apiResponse = JsonSerializer.Deserialize<QReserveGetUserInfoResponse>(response)!;
+
+        List<string> expected = ["669f6d6c6ee12e497ebcc794", "669f6d6c6ee12e497ebcc795"];
+
+        List<string> result = apiResponse.GetUserGroups();
+
+        Assert.Equal(expected, result);
+    }
+    [Fact]
+    public void GetUserGroups_ThrowsExceptionIfNoUserGroups()
+    {
+        string jsonString = $@"
+                        {{
+                            ""Data"": 
+                            [
+                            {{
+                            ""_id"": ""669f6d6c6ee12e497ebcc796"",
+                            ""name"": ""Alice"",
+                            ""email"": ""alice@example.com"",
+                            ""user_groups"": 
+                                [
+
+                                ]
+                            }}
+                            ]
+                        }}";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement response = doc.RootElement;
+        QReserveGetUserInfoResponse apiResponse = JsonSerializer.Deserialize<QReserveGetUserInfoResponse>(response)!;
+
+        Assert.Throws<KeyNotFoundException>(() => apiResponse.GetUserGroups());
+    }
+
 }
