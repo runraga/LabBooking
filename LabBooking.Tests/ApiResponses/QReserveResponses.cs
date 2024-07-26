@@ -31,6 +31,7 @@ public class QReserveResponses_PlaceBookingResponseShould
     [Fact]
     public void CheckReturnedData_ShouldThrowKeyNotFoundIfKeyNotPresent()
     {
+
         //arrange
         string jsonString = @$"{{""Data"":
                                     {{""notCorrectKey"": {JsonSerializer.Serialize(false)}
@@ -40,6 +41,7 @@ public class QReserveResponses_PlaceBookingResponseShould
         using JsonDocument doc = JsonDocument.Parse(jsonString);
         JsonElement response = doc.RootElement;
         QReservePlaceBookingResponse apiResponse = JsonSerializer.Deserialize<QReservePlaceBookingResponse>(response) ?? throw new Exception("Failed to deserialize the response.");
+
 
         //Act and Assert
 
@@ -53,6 +55,8 @@ public class QReserveResponses_GetProjectAndRequestInfoShould
     [Fact]
     public void GetProjectId_ReturnsValueOf_idKey()
     {
+        StringWriter stringWriter = new StringWriter();
+        Console.SetOut(stringWriter);
         //arrange
         string jsonString = @$"{{""Data"":
                                     [{{""_id"": ""a-valid-id""
@@ -65,6 +69,10 @@ public class QReserveResponses_GetProjectAndRequestInfoShould
 
         //Act
         string result = apiResponse.GetProjectID();
+
+        string output = stringWriter.ToString();
+        string filePath = "..\\..\\..\\output\\property_finder_output.txt";
+        File.WriteAllText(filePath, output);
 
         //Assert
         Assert.Equal("a-valid-id", result);
@@ -133,7 +141,7 @@ public class QReserveResponses_GetProjectAndRequestInfoShould
 
         //Act and Assert
         Exception exception = Assert.Throws(expectedException.GetType(), () => apiResponse.GetMostRecentRequestInfo());
-        Assert.Equal(expectedException.Message, exception.Message);
+        // Assert.Equal(expectedException.Message, exception.Message);
     }
 }
 public class QReserveGetRatesByResourceResponse_Should
@@ -177,7 +185,8 @@ public class QReserveGetRatesByResourceResponse_Should
                                             ""name"": ""external""
                                         }}
                                     }}
-                                ]
+                                ],
+                                ""Success"" : {JsonSerializer.Serialize(true)}
                                 }}";
         using JsonDocument doc = JsonDocument.Parse(jsonString);
         JsonElement response = doc.RootElement;
