@@ -34,7 +34,7 @@ public static class ResponseHelpers
                                             ],
                                         ""bookings"": [ ]
                                     }}
-                                ]
+                                ],""Success"":{JsonSerializer.Serialize(true)}
                                 }}", new KeyNotFoundException("No requests found on that project") };
         // no requests key on object
         yield return new object[] { @$"{{
@@ -45,7 +45,7 @@ public static class ResponseHelpers
                             ""name"": ""24001_an_eclipse_project"",
                             ""bookings"": [ ]
                         }}
-                    ]
+                    ],""Success"":{JsonSerializer.Serialize(true)}
                     }}", new KeyNotFoundException("No requests found on that project") };
         // request with valid request name not found
         yield return new object[] { @$"{{
@@ -65,7 +65,7 @@ public static class ResponseHelpers
                                 ],
                             ""bookings"": [ ]
                         }}
-                    ]
+                    ],""Success"":{JsonSerializer.Serialize(true)}
                     }}", new InvalidOperationException("A valid request could not be found") };
 
         yield return new object[] { @$"{{
@@ -84,7 +84,7 @@ public static class ResponseHelpers
                                 ],
                             ""bookings"": [ ]
                         }}
-                    ]
+                    ],""Success"":{JsonSerializer.Serialize(true)}
                     }}" ,
                          new KeyNotFoundException("a valid user or account number could not be found")
 
@@ -92,7 +92,6 @@ public static class ResponseHelpers
     }
     public static bool DictionariesAreEqual<TKey, TValue>(IDictionary<TKey, TValue> dict1, IDictionary<TKey, TValue> dict2)
     {
-        Console.WriteLine("checking if dictionaries are equal");
         if (dict1.Count != dict2.Count)
         {
             Console.WriteLine("dictionaries are not the same size");
@@ -103,8 +102,6 @@ public static class ResponseHelpers
         {
             if (!dict2.TryGetValue(kvp.Key, out var value) || !Equals(kvp.Value, value))
             {
-                Console.WriteLine(kvp.Value);
-                Console.WriteLine(value);
 
                 return false;
             }
