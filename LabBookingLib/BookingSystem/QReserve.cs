@@ -55,7 +55,7 @@ namespace LabBookingLib.BookingSystem
             QReservePlaceBookingResponse result = await _apiClient.PerformPostRequest<QReservePlaceBookingResponse>(payload, url);
             return result.CheckReturnedData();
         }
-        public async Task<string> GetRateId(string userId, Dictionary<string, int> resourceRates)
+        public virtual async Task<string> GetRateId(string userId, Dictionary<string, int> resourceRates)
         {
             string userUrl = String.Format($"{QReserveConstants.ApiRoot}/users/{userId}");
             QReserveGetUserInfoResponse result = await _apiClient.PerformGetRequest<QReserveGetUserInfoResponse>(userUrl);
@@ -73,7 +73,6 @@ namespace LabBookingLib.BookingSystem
             List<int> mappedList = commonUserGroups.Select(item => QReserveConstants.Hierarchy.IndexOf(item))
                                                 .Where(index => index != -1)
                                                 .ToList();
-            Console.WriteLine(mappedList);
             if (mappedList.Count == 0)
             {
                 throw new Exception("Charge rate could not be determined, check user and resource usergroups");
@@ -82,13 +81,13 @@ namespace LabBookingLib.BookingSystem
             return QReserveConstants.Hierarchy[indexOfHighestPriority];
 
         }
-        public async Task<Dictionary<string, int>> GetResourceRates(string resourceIdentifier)
+        public virtual async Task<Dictionary<string, int>> GetResourceRates(string resourceIdentifier)
         {
             string reservableUrl = String.Format($"{QReserveConstants.ApiRoot}/resources/{resourceIdentifier}/rates");
             QReserveGetRatesByResourceResponse result = await _apiClient.PerformGetRequest<QReserveGetRatesByResourceResponse>(reservableUrl);
             return result.GetRatesDict();
         }
-        public async Task<(string, string, string)> GetProjectAndRequest(string projectCode)
+        public virtual async Task<(string, string, string)> GetProjectAndRequest(string projectCode)
         {
 
             string getProjectByCodeUrl = String.Format($"{QReserveConstants.ApiRoot}/projects/search?name={projectCode}");

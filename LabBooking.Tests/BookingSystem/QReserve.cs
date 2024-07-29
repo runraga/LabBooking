@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using LabBookingLib.ApiResponses;
 using LabBookingLib.BookingSystem;
 using LabBookingLib.ApiClients;
+using System.Data;
 
 public class QReserveBooking_Should
 {
@@ -383,65 +384,244 @@ public class QReserveBooking_Should
         //Assert
         Assert.Equal(expected, result);
     }
-    // [Fact]
-    // public async Task GetResourceRates_CallsApiWithCorrectUrl()
-    // {
-    //     // Arrange
-    //     var mockApiClient = new Mock<IApiClient>();
-    //     var service = new QReserve(mockApiClient.Object);
-    //     var resourceId = "669f6d6d6ee12e497ebcc798";
-    //     var expectedUrl = $"{QReserveConstants.ApiRoot}/resources/{resourceId}/rates";
+    [Theory]
+    [MemberData(nameof(RatesEnums.DeterminRateIdExceptionTestData), MemberType = typeof(RatesEnums))]
+    public void DetermineRateId_ThrowsExceptionIfNoKeyMatches(Dictionary<string, int> resource, List<string> user, Exception expected)
 
-    //     string jsonString = $@"
-    //                             [
-    //                                 {{
-    //                                     ""_id"": ""669f6d6d6ee12e497ebcc79a"",
-    //                                     ""resources"": 
-    //                                     {{
-    //                                         ""_id"": ""669f6d6d6ee12e497ebcc798"",
-    //                                         ""name"": ""Microscope"",
-    //                                         ""type"": ""Imaging""
-    //                                     }},
-    //                                     ""rate"": {JsonSerializer.Serialize(50)},
-    //                                     ""currency"": ""USD"",
-    //                                     ""user_groups"": 
-    //                                     {{
-    //                                         ""_id"": ""669f6d6c6ee12e497ebcc794"",
-    //                                         ""name"": ""internal""
-    //                                     }}
-    //                                 }},
-    //                                 {{
-    //                                     ""_id"": ""669f6d6d6ee12e497ebcc79b"",
-    //                                     ""resources"": 
-    //                                     {{
-    //                                         ""_id"": ""669f6d6d6ee12e497ebcc798"",
-    //                                         ""name"": ""Microscope"",
-    //                                         ""type"": ""Imaging""
-    //                                     }},
-    //                                     ""rate"": {JsonSerializer.Serialize(100)},
-    //                                     ""currency"": ""USD"",
-    //                                     ""user_groups"": 
-    //                                     {{
-    //                                         ""_id"": ""669f6d6c6ee12e497ebcc795"",
-    //                                         ""name"": ""external""
-    //                                     }}
-    //                                 }}
-    //                             ]
-    //                             ";
-    //     using JsonDocument doc = JsonDocument.Parse(jsonString);
-    //     JsonElement jsonResponse = doc.RootElement;
+    {
+        // Act and Assert
+        Exception result = Assert.Throws<Exception>(() => QReserve.DetermineRateId(resource, user));
+        Assert.NotNull(result);
+        Assert.IsType<Exception>(result);
+        Assert.Equal(expected.Message, result.Message);
 
-    //     QReserveGetRatesByResourceResponse response = new()
-    //     {
-    //         Success = true,
-    //         Data = jsonResponse
-    //     };
-    //     mockApiClient.Setup(client => client.PerformGetRequest<QReserveGetRatesByResourceResponse>(expectedUrl))
-    //         .ReturnsAsync(response);
+    }
+    [Fact]
+    public async Task GetRateId_ReturnsStringOfTheCorrectRateId()
+    {
+        // Arrange
+        var mockApiClient = new Mock<IApiClient>();
+        var service = new QReserve(mockApiClient.Object);
 
-    //     await service.GetResourceRates("669f6d6d6ee12e497ebcc798");
+        string jsonString = $@"
+                                [
+                                {{
+                                ""_id"": ""669f6d6c6ee12e497ebcc796"",
+                                ""name"": ""Alice"",
+                                ""email"": ""alice@example.com"",
+                                ""user_groups"": [
+                                {{
+                                ""_id"": ""669f6d6c6ee12e497ebcc794"",
+                                ""name"": ""internal""
+                                }},
+                                {{
+                                ""_id"": ""669f6d6c6ee12e497ebcc795"",
+                                ""name"": ""external""
+                                }}
+                                ]
+                                }}
+                                ]
+                                ";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement jsonResponse = doc.RootElement;
 
-    //     mockApiClient.Verify(client => client.PerformGetRequest<QReserveGetRatesByResourceResponse>(expectedUrl), Times.Once);
-    // }
+        QReserveGetUserInfoResponse response = new()
+        {
+            Success = true,
+            Data = jsonResponse
+        };
+
+
+        mockApiClient.Setup(client => client.PerformGetRequest<QReserveGetUserInfoResponse>(It.IsAny<string>()))
+            .ReturnsAsync(response);
+
+        Dictionary<string, int> resourceRates = new(){
+                                                    { "669f6d6c6ee12e497ebcc794", 50 }, //internal
+                                                    { "669f6d6c6ee12e497ebcc795", 100 }, //external
+                                                    };
+
+        // Act
+        var result = await service.GetRateId("669f6d6c6ee12e497ebcc796", resourceRates);
+
+        // Assert
+        Assert.Equal("669f6d6c6ee12e497ebcc795", result);
+
+    }
+    [Fact]
+    public async Task PerformPostRequest_ReturnsDeserializedObject()
+    {
+
+        // Arrange
+        var expectedResponse = $@"
+                        {{
+                            ""Data"": 
+                            
+                            {{
+                                ""acknowledged"": {JsonSerializer.Serialize(true)},
+                                ""insertedId"": ""66a75a5a3b2c3f13601b2a43""
+                            }}
+                            ,
+                            ""Success"":{JsonSerializer.Serialize(true)}
+                            }}";
+
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK,
+                Content = new StringContent(expectedResponse)
+            });
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+        QReserveApiClient api = new(httpClient);
+
+
+        string expected = "66a75a5a3b2c3f13601b2a43";
+
+        // Act
+        QReservePlaceBookingResponse result = await api.PerformGetRequest<QReservePlaceBookingResponse>("http://example.com");
+
+        // Assert
+        Assert.True(result.Data.TryGetProperty("insertedId", out JsonElement bookingId));
+        Assert.Equal(expected, bookingId.GetString());
+    }
+    [Fact]
+    public async Task PerformPostRequest_ThrowsGeneralHttpRequestExcption_WhenApiEndpointIsUnreachable()
+    {
+        // Arrange
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("API endpoint is unreachable"));
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+        QReserveApiClient api = new(httpClient);
+
+        // Act and Assert
+        ApiErrorException e = await Assert.ThrowsAsync<ApiErrorException>(async () => await api.PerformGetRequest<QReservePlaceBookingResponse>("http://example.com"));
+        Assert.NotNull(e.InnerException);
+        Assert.IsType<HttpRequestException>(e.InnerException);
+
+    }
+    [Fact]
+    public async Task PerfomPostRequest_ThrowsHttpRequestException_WhenHostNotFound()
+    {
+        // Arrange
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new HttpRequestException("API endpoint is unreachable", new SocketException((int)SocketError.HostNotFound)));
+
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+        QReserveApiClient api = new QReserveApiClient(httpClient);
+
+        // Act and Assert
+        ApiErrorException e = await Assert.ThrowsAsync<ApiErrorException>(async () => await api.PerformGetRequest<QReservePlaceBookingResponse>("http://example.com"));
+
+
+        // Additional assertions
+        Assert.Equal((int)HttpStatusCode.NotFound, e.Code);
+        Assert.Equal("Host not found.", e.Message);
+
+        // Check the InnerException of the ApiErrorException
+        Assert.NotNull(e.InnerException);
+        Assert.IsType<HttpRequestException>(e.InnerException);
+
+        var httpRequestException = e.InnerException as HttpRequestException;
+        Assert.NotNull(httpRequestException.InnerException);
+        Assert.IsType<SocketException>(httpRequestException.InnerException);
+
+        var socketException = httpRequestException.InnerException as SocketException;
+        Assert.Equal(SocketError.HostNotFound, socketException.SocketErrorCode);
+
+    }
+    [Fact]
+    public async Task PerformPostRequest_ThrowsNonHttpRequestException_InvalidAddressUsed()
+    {
+        // Arrange
+        var mockHttpMessageHandler = new Mock<HttpMessageHandler>();
+        mockHttpMessageHandler.Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ThrowsAsync(new ArgumentException("Invalid argument provided"));
+        var httpClient = new HttpClient(mockHttpMessageHandler.Object);
+
+        QReserveApiClient api = new QReserveApiClient(httpClient);
+
+        // Act and Assert
+        ApiErrorException e = await Assert.ThrowsAsync<ApiErrorException>(async () => await api.PerformGetRequest<QReservePlaceBookingResponse>("http://example.com"));
+
+        // Additional assertions
+        Assert.Equal(500, e.Code);
+        Assert.Equal("Unexpected error.", e.Message);
+        // Check the InnerException of the ApiErrorException
+        Assert.NotNull(e.InnerException);
+        Assert.IsType<ArgumentException>(e.InnerException);
+
+        var innerException = e.InnerException as ArgumentException;
+        Assert.Equal("Invalid argument provided", innerException.Message);
+
+    }
+    [Fact]
+    public async Task MakeBookingAsync_ReturnTrueIfBookingPlaceSuccessfully()
+    {
+        // Arrange
+        var expectedPostResponse = $@"
+                {{
+                        ""acknowledged"": {JsonSerializer.Serialize(true)},
+                        ""insertedId"": ""66a75a5a3b2c3f13601b2a43""
+                    }}";
+
+        using JsonDocument doc = JsonDocument.Parse(expectedPostResponse);
+        JsonElement expectedPostJsonResponse = doc.RootElement;
+
+
+        Mock<IApiClient> mockApiClient = new();
+
+        mockApiClient
+        .Setup(apiClient => apiClient.PerformPostRequest<QReservePlaceBookingResponse>(It.IsAny<string>(), It.IsAny<string>()))
+        .ReturnsAsync(new QReservePlaceBookingResponse
+        {
+            Success = true,
+            Data = expectedPostJsonResponse
+            // Initialize properties as needed
+        });
+
+        Mock<QReserve> mockQReserve = new(mockApiClient.Object) { CallBase = true };
+
+        mockQReserve.Setup(bs => bs.GetProjectAndRequest(It.IsAny<string>()))
+                .ReturnsAsync(("669f6d6d6ee12e497ebcc7a0", "19300001", "669f6d6c6ee12e497ebcc796"));
+
+
+        Dictionary<string, int> resourceRates = new()
+        {
+            { "669f6d6c6ee12e497ebcc794", 50 }, //internal
+            { "669f6d6c6ee12e497ebcc795", 100 }, //external
+        };
+        mockQReserve.Setup(bs => bs.GetResourceRates(It.IsAny<string>()))
+                .ReturnsAsync(resourceRates);
+
+        mockQReserve.Setup(bs => bs.GetRateId(It.IsAny<string>(), It.IsAny<Dictionary<string, int>>()))
+                .ReturnsAsync("669f6d6c6ee12e497ebcc794");
+
+        bool result = await mockQReserve.Object.MakeBookingAsync("24001", DateTime.Now, 100, "669e6fb71582c7ce4675a654");
+
+        Assert.True(result);
+    }
+
 
 }
