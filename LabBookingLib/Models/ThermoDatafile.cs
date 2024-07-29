@@ -53,7 +53,7 @@ public class ThermoDatafile : IDatafile
         if (RawDataFile.IsError)
         {
             Console.WriteLine("errors found");
-            Errors.Add($"Data file error: {RawDataFile.FileError}.");
+            Errors.Add($"Data file error: {RawDataFile.FileError.ErrorMessage}.");
 
 
             readyCheck = false;

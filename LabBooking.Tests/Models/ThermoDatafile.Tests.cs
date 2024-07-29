@@ -1,5 +1,6 @@
 namespace LabBooking.Tests.Models;
 using LabBookingLib.Models;
+using LabBooking.Tests.Services;
 using ThermoFisher.CommonCore.Data.Interfaces;
 using Moq;
 public class ThermoDatafileTests
@@ -16,9 +17,9 @@ public class ThermoDatafileTests
         mockRawDataFile.Setup(r => r.FileName).Returns(fileName);
         if (isError)
         {
-            Mock<IFileError> mockFileError = new();
-            mockFileError.Setup(r => r.ErrorMessage).Returns("There is a file error");
-            mockRawDataFile.Setup(r => r.FileError).Returns(mockFileError.Object);
+            // Mock<IFileError> mockFileError = new();
+            // mockFileError.Setup(r => r.ErrorMessage).Returns("There is a file error");
+            mockRawDataFile.Setup(r => r.FileError.ErrorMessage).Returns(fileError);
         }
 
         return mockRawDataFile;
@@ -27,8 +28,6 @@ public class ThermoDatafileTests
     [Fact]
     public void ThermoDatafile_InitializesCorrectly()
     {
-        StringWriter stringWriter = new StringWriter();
-        Console.SetOut(stringWriter);
         // Arrange
         var filePath = "testFilePath.raw";
         var mockRawDataFile = SetupMockRawDataFile(false, false, DateTime.Now.AddMinutes(-100), DateTime.Now, 60, filePath);
@@ -37,9 +36,6 @@ public class ThermoDatafileTests
         // Act
         var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
 
-        string output = stringWriter.ToString();
-        string fp = "..\\..\\..\\output\\property_finder_output.txt";
-        File.WriteAllText(fp, output);
         // Assert
         Assert.True(thermoDatafile.IsReadyToProcess);
         Assert.Empty(thermoDatafile.Errors);
@@ -49,75 +45,72 @@ public class ThermoDatafileTests
         Assert.Equal(filePath, thermoDatafile.GetDataFileName());
     }
 
-    // [Fact]
-    // public void CheckReadyToProcess_FileInAcquisitionOlderThan48Hours_SetsErrorsAndIsNotReady()
-    // {
-    //     // Arrange
-    //     var filePath = "testFilePath.raw";
-    //     var creationDate = DateTime.Now.AddDays(-3);
-    //     var modifiedDate = DateTime.Now.AddDays(-3);
-    //     var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, "testFile.raw");
-    //     RawFileReaderAdapter.FileFactory = (path) => mockRawDataFile.Object;
+    [Fact]
+    public void CheckReadyToProcess_FileInAcquisitionOlderThan48Hours_SetsErrorsAndIsNotReady()
+    {
+        // Arrange
+        var filePath = "testFilePath.raw";
+        var creationDate = DateTime.Now.AddDays(-7);
+        var modifiedDate = DateTime.Now.AddDays(-6);
+        var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
 
-    //     // Act
-    //     var thermoDatafile = new ThermoDatafile(filePath);
+        // Act
+        var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
 
-    //     // Assert
-    //     Assert.False(thermoDatafile.IsReadyToProcess);
-    //     Assert.Contains("This data file is older than 48 hours but showing as in acquisition.", thermoDatafile.Errors);
-    // }
 
-    // [Fact]
-    // public void CheckReadyToProcess_FileInAcquisitionWithin48Hours_SetsErrorsAndIsNotReady()
-    // {
-    //     // Arrange
-    //     var filePath = "testFilePath.raw";
-    //     var creationDate = DateTime.Now;
-    //     var modifiedDate = DateTime.Now;
-    //     var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, "testFile.raw");
-    //     RawFileReaderAdapter.FileFactory = (path) => mockRawDataFile.Object;
+        // Assert
+        Assert.False(thermoDatafile.IsReadyToProcess);
+        Assert.Contains("This data file is older than 48 hours but showing as in acquisition.", thermoDatafile.Errors);
+    }
 
-    //     // Act
-    //     var thermoDatafile = new ThermoDatafile(filePath);
+    [Fact]
+    public void CheckReadyToProcess_FileInAcquisitionWithin48Hours_SetsErrorsAndIsNotReady()
+    {
+        // Arrange
+        var filePath = "testFilePath.raw";
+        var creationDate = DateTime.Now;
+        var modifiedDate = DateTime.Now;
+        var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
 
-    //     // Assert
-    //     Assert.False(thermoDatafile.IsReadyToProcess);
-    //     Assert.Contains("This datafile is in acquisition and won't backed up until finished.", thermoDatafile.Errors);
-    // }
+        // Act
+        var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
 
-    // [Fact]
-    // public void CheckReadyToProcess_FileHasError_SetsErrorsAndIsNotReady()
-    // {
-    //     // Arrange
-    //     var filePath = "testFilePath.raw";
-    //     var creationDate = DateTime.Now;
-    //     var modifiedDate = DateTime.Now;
-    //     var mockRawDataFile = SetupMockRawDataFile(false, true, creationDate, modifiedDate, 60, "testFile.raw", "File read error");
-    //     RawFileReaderAdapter.FileFactory = (path) => mockRawDataFile.Object;
+        // Assert
+        Assert.False(thermoDatafile.IsReadyToProcess);
+        Assert.Contains("This datafile is in acquisition and won't backed up until finished.", thermoDatafile.Errors);
+    }
 
-    //     // Act
-    //     var thermoDatafile = new ThermoDatafile(filePath);
+    [Fact]
+    public void CheckReadyToProcess_FileHasError_SetsErrorsAndIsNotReady()
+    {
+        // Arrange
+        var filePath = "testFilePath.raw";
+        var creationDate = DateTime.Now;
+        var modifiedDate = DateTime.Now;
+        var mockRawDataFile = SetupMockRawDataFile(false, true, creationDate, modifiedDate, 60, filePath, "File read error");
 
-    //     // Assert
-    //     Assert.False(thermoDatafile.IsReadyToProcess);
-    //     Assert.Contains("Data file error: File read error.", thermoDatafile.Errors);
-    // }
+        // Act
+        var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
 
-    // [Fact]
-    // public void CheckReadyToProcess_ValidFile_IsReadyToProcess()
-    // {
-    //     // Arrange
-    //     var filePath = "testFilePath.raw";
-    //     var creationDate = DateTime.Now;
-    //     var modifiedDate = DateTime.Now;
-    //     var mockRawDataFile = SetupMockRawDataFile(false, false, creationDate, modifiedDate, 60, "testFile.raw");
-    //     RawFileReaderAdapter.FileFactory = (path) => mockRawDataFile.Object;
+        // Assert
+        Assert.False(thermoDatafile.IsReadyToProcess);
+        Assert.Contains("Data file error: File read error.", thermoDatafile.Errors);
+    }
 
-    //     // Act
-    //     var thermoDatafile = new ThermoDatafile(filePath);
+    [Fact]
+    public void CheckReadyToProcess_ValidFile_IsReadyToProcess()
+    {
+        // Arrange
+        var filePath = "testFilePath.raw";
+        var creationDate = DateTime.Now;
+        var modifiedDate = DateTime.Now;
+        var mockRawDataFile = SetupMockRawDataFile(false, false, creationDate, modifiedDate, 60, filePath);
 
-    //     // Assert
-    //     Assert.True(thermoDatafile.IsReadyToProcess);
-    //     Assert.Empty(thermoDatafile.Errors);
-    // }
+        // Act
+        var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
+
+        // Assert
+        Assert.True(thermoDatafile.IsReadyToProcess);
+        Assert.Empty(thermoDatafile.Errors);
+    }
 }
