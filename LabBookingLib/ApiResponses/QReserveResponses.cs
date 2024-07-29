@@ -12,7 +12,7 @@ namespace LabBookingLib.ApiResponses
 
             if (!Data.TryGetProperty("acknowledged", out JsonElement acknowledged))
             {
-                throw new KeyNotFoundException("");
+                throw new KeyNotFoundException("The booking response object was not formatted correctly. Check booking manually");
             }
             else
             {

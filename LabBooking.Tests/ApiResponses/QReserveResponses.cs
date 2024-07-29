@@ -223,6 +223,7 @@ public class QReserveGetRatesByResourceResponse_Should
     }
 }
 public class QReserveGetUserInfoResponse_Should
+
 {
     [Fact]
     public void GetUserGroups_ReturnsListOfUserGroupIds()
@@ -284,4 +285,51 @@ public class QReserveGetUserInfoResponse_Should
         Assert.Throws<KeyNotFoundException>(() => apiResponse.GetUserGroups());
     }
 
+}
+public class QReservePlaceBookingResponse_Should
+{
+    [Fact]
+    public void CheckReturnedData_ReturnsTrue()
+    {
+        string jsonString = $@"
+                            {{
+                            ""Data"": 
+                            
+                            {{
+                                ""acknowledged"": {JsonSerializer.Serialize(true)},
+                                ""insertedId"": ""66a75a5a3b2c3f13601b2a43""
+                            }}
+                            ,
+                            ""Success"":{JsonSerializer.Serialize(true)}
+                            }}";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement response = doc.RootElement;
+        QReservePlaceBookingResponse apiResponse = JsonSerializer.Deserialize<QReservePlaceBookingResponse>(response)!;
+
+        bool result = apiResponse.CheckReturnedData();
+
+        Assert.True(result);
+    }
+    [Fact]
+    public void CheckReturnedData_ThrowsExceptionIfAcknowledgedKeyNotFound()
+    {
+        string expectedErrorMessage = "The booking response object was not formatted correctly. Check booking manually";
+        string jsonString = $@"
+                            {{
+                            ""Data"": 
+                            
+                            {{
+                                ""insertedId"": ""66a75a5a3b2c3f13601b2a43""
+                            }}
+                            ,
+                            ""Success"":{JsonSerializer.Serialize(true)}
+                            }}";
+        using JsonDocument doc = JsonDocument.Parse(jsonString);
+        JsonElement response = doc.RootElement;
+        QReservePlaceBookingResponse apiResponse = JsonSerializer.Deserialize<QReservePlaceBookingResponse>(response)!;
+
+        KeyNotFoundException error = Assert.Throws<KeyNotFoundException>(() => apiResponse.CheckReturnedData());
+
+        Assert.Equal(expectedErrorMessage, error.Message);
+    }
 }
