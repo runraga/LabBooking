@@ -134,7 +134,6 @@ namespace LabBookingLib.ApiResponses
                 {
                     if (userGroup.TryGetProperty("_id", out JsonElement userGroupId))
                     {
-                        Console.WriteLine(userGroupId.GetString()!, rateValue.GetInt16());
                         ratesDict.Add(userGroupId.GetString()!, rateValue.GetInt16());
                     }
                     else
