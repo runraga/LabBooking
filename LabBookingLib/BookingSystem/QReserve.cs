@@ -8,7 +8,7 @@ namespace LabBookingLib.BookingSystem
     public static class QReserveConstants
     {
         // could these be readonly and api'd on initialisation
-        public const string EclipseIdentifier = "669e6fb71582c7ce4675a654";
+        public const string EclipseIdentifier = "669f6d6d6ee12e497ebcc799";
         public static readonly List<string> Hierarchy =
         [
                  "669f6d6c6ee12e497ebcc795", // external
