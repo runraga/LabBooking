@@ -110,10 +110,8 @@ public class ProjectBooking(string projectCode, IInstrument instrument) : IBooki
         if (Math.Abs((firstFile.StartTime - otherFile.EndTime).TotalSeconds) >= 3600 &&
              Math.Abs((otherFile.StartTime - lastFile.EndTime).TotalSeconds) >= 3600)
         {
-            Console.WriteLine("Not within booking window");
             return false;
         }
-        Console.WriteLine("Within booking window");
 
         return true;
     }

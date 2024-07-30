@@ -18,7 +18,6 @@ public class ThermoDatafile : IDatafile
         RawDataFile = rdf;
         RawDataFile.SelectInstrument(Device.MS, 1);
         IsReadyToProcess = CheckReadyToProcess();
-        Console.WriteLine(IsReadyToProcess);
         StartTime = RawDataFile.FileHeader.CreationDate;
         DurationMinutes = (int)Math.Ceiling(RawDataFile.RunHeaderEx.EndTime);
         EndTime = StartTime.AddMinutes(DurationMinutes);
@@ -29,8 +28,6 @@ public class ThermoDatafile : IDatafile
     private bool CheckReadyToProcess()
     {
         bool readyCheck = true;
-        Console.WriteLine($"ready check at start of method:{readyCheck}");
-        Console.WriteLine($"Is it in acquisition:{RawDataFile.InAcquisition}");
 
         if (RawDataFile.InAcquisition)
         {
@@ -48,17 +45,14 @@ public class ThermoDatafile : IDatafile
                 readyCheck = false;
             }
         }
-        Console.WriteLine($"Is it in error:{RawDataFile.IsError}");
 
         if (RawDataFile.IsError)
         {
-            Console.WriteLine("errors found");
             Errors.Add($"Data file error: {RawDataFile.FileError.ErrorMessage}.");
 
 
             readyCheck = false;
         }
-        Console.WriteLine($"ready check at end of method:{readyCheck}");
 
 
         return readyCheck;

@@ -10,7 +10,7 @@ public interface IBooking
     bool IsValidBooking { get; }
     bool IsWithinBookingWindow(IDatafile otherFile);
     bool BookingComplete { get; set; }
-    //string BookingError { get; }
+    string BookingError { get; }
     Task<bool> MakeBookingAsync();
     string ProjectCode { get; }
 
