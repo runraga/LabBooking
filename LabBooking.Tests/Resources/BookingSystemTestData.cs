@@ -1,6 +1,6 @@
-namespace LabBooking.Tests.BookingSystem;
+namespace LabBooking.Tests.Resources;
 
-public static class RatesEnums
+public static class BookingSystemTestData
 {
 
     public static IEnumerable<object[]> DetermineRateIdTestData()

@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using LabBookingLib.ApiResponses;
 using LabBookingLib.BookingSystem;
 using LabBookingLib.ApiClients;
-using System.Data;
+using LabBooking.Tests.Resources;
 
 public class QReserveBooking_Should
 {
@@ -369,7 +369,7 @@ public class QReserveBooking_Should
     }
 
     [Theory]
-    [MemberData(nameof(RatesEnums.DetermineRateIdTestData), MemberType = typeof(RatesEnums))]
+    [MemberData(nameof(BookingSystemTestData.DetermineRateIdTestData), MemberType = typeof(BookingSystemTestData))]
     public void DetermineRateId_ReturnsAStringGivenValidInputs(Dictionary<string, int> resource, List<string> user, string expected)
     {
         StringWriter stringWriter = new StringWriter();
@@ -385,7 +385,7 @@ public class QReserveBooking_Should
         Assert.Equal(expected, result);
     }
     [Theory]
-    [MemberData(nameof(RatesEnums.DeterminRateIdExceptionTestData), MemberType = typeof(RatesEnums))]
+    [MemberData(nameof(BookingSystemTestData.DeterminRateIdExceptionTestData), MemberType = typeof(BookingSystemTestData))]
     public void DetermineRateId_ThrowsExceptionIfNoKeyMatches(Dictionary<string, int> resource, List<string> user, Exception expected)
 
     {

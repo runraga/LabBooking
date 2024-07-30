@@ -1,11 +1,10 @@
-namespace LabBooking.Tests.ApiResponses;
+namespace LabBooking.Tests.Resources;
 
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 
 
-public static class ResponseHelpers
+public static class ApiResponseTestData
 {
 
     public static IEnumerable<object[]> GetProjectIdExceptionTestData()

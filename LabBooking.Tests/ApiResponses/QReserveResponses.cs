@@ -1,4 +1,5 @@
 namespace LabBooking.Tests.ApiResponses;
+using LabBooking.Tests.Resources;
 using LabBookingLib.ApiResponses;
 using System.Text.Json;
 
@@ -81,7 +82,7 @@ public class QReserveResponses_GetProjectAndRequestInfoShould
 
 
     [Theory]
-    [MemberData(nameof(ResponseHelpers.GetProjectIdExceptionTestData), MemberType = typeof(ResponseHelpers))]
+    [MemberData(nameof(ApiResponseTestData.GetProjectIdExceptionTestData), MemberType = typeof(ApiResponseTestData))]
     public void GetProjectId_ThrowsInvalidOperationExceptionIsReponseIncorrect(string jsonString)
     {
         //arrange
@@ -130,7 +131,7 @@ public class QReserveResponses_GetProjectAndRequestInfoShould
         Assert.Equal(("19300001", "669f6d6c6ee12e497ebcc796"), result);
     }
     [Theory]
-    [MemberData(nameof(ResponseHelpers.GetRequestInfoExceptionTestData), MemberType = typeof(ResponseHelpers))]
+    [MemberData(nameof(ApiResponseTestData.GetRequestInfoExceptionTestData), MemberType = typeof(ApiResponseTestData))]
     public void GetProjectId_ThrowsExceptionIfResponseDataIsInvalid(string jsonString, Exception expectedException)
     {
         //arrange
@@ -203,7 +204,7 @@ public class QReserveGetRatesByResourceResponse_Should
         Dictionary<string, int> result = apiResponse.GetRatesDict();
 
         //Assert
-        Assert.True(ResponseHelpers.DictionariesAreEqual<string, int>(expected, result));
+        Assert.True(ApiResponseTestData.DictionariesAreEqual<string, int>(expected, result));
     }
     [Fact]
     public void GetRatesDict_ThrowsExceptionIfNoRates()
