@@ -5,7 +5,7 @@ public class ProjectBooking(string projectCode, IInstrument instrument) : IBooki
     public bool BookingComplete { get; set; } = false;
     private readonly SortedList<DateTime, IDatafile> RawFiles = [];
     public string ProjectCode { get; } = projectCode;
-    private readonly IInstrument Instrument = instrument;
+    public IInstrument Instrument { get; } = instrument;
     public bool IsValidBooking
     {
         //TODO remove Error check once errored files aren't added to bookings
