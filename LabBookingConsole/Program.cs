@@ -60,6 +60,14 @@ foreach (IBooking booking in bookingsForProject)
             Console.WriteLine($"there was an error making the booking for project {booking.ProjectCode}:");
             Console.WriteLine($"\t{booking.BookingError}");
         }
+        else
+        {
+            Console.WriteLine($"Booking successfully made for Project: {booking.ProjectCode} Files:");
+            foreach (string df in booking.GetDataFileNames())
+            {
+                Console.WriteLine($"\t{df}");
+            }
+        }
     }
     else
     {
