@@ -1,36 +1,15 @@
 namespace LabBooking.Tests.Models;
 using LabBookingLib.Models;
 using LabBooking.Tests.Services;
-using ThermoFisher.CommonCore.Data.Interfaces;
-using Moq;
 public class ThermoDatafileTests
 {
-    private Mock<IRawDataExtended> SetupMockRawDataFile(bool inAcquisition, bool isError, DateTime creationDate, DateTime modifiedDate, double endTime, string fileName, string fileError = null)
-    {
-        var mockRawDataFile = new Mock<IRawDataExtended>();
-
-        mockRawDataFile.Setup(r => r.InAcquisition).Returns(inAcquisition);
-        mockRawDataFile.Setup(r => r.IsError).Returns(isError);
-        mockRawDataFile.Setup(r => r.FileHeader.CreationDate).Returns(creationDate);
-        mockRawDataFile.Setup(r => r.FileHeader.ModifiedDate).Returns(modifiedDate);
-        mockRawDataFile.Setup(r => r.RunHeaderEx.EndTime).Returns(endTime);
-        mockRawDataFile.Setup(r => r.FileName).Returns(fileName);
-        if (isError)
-        {
-            // Mock<IFileError> mockFileError = new();
-            // mockFileError.Setup(r => r.ErrorMessage).Returns("There is a file error");
-            mockRawDataFile.Setup(r => r.FileError.ErrorMessage).Returns(fileError);
-        }
-
-        return mockRawDataFile;
-    }
 
     [Fact]
     public void ThermoDatafile_InitializesCorrectly()
     {
         // Arrange
         var filePath = "testFilePath.raw";
-        var mockRawDataFile = SetupMockRawDataFile(false, false, DateTime.Now.AddMinutes(-100), DateTime.Now, 60, filePath);
+        var mockRawDataFile = MockRawDataFiles.SetupMockRawDataFile(false, false, DateTime.Now.AddMinutes(-100), DateTime.Now, 60, filePath);
 
 
         // Act
@@ -52,7 +31,7 @@ public class ThermoDatafileTests
         var filePath = "testFilePath.raw";
         var creationDate = DateTime.Now.AddDays(-7);
         var modifiedDate = DateTime.Now.AddDays(-6);
-        var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
+        var mockRawDataFile = MockRawDataFiles.SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
 
         // Act
         var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
@@ -70,7 +49,7 @@ public class ThermoDatafileTests
         var filePath = "testFilePath.raw";
         var creationDate = DateTime.Now;
         var modifiedDate = DateTime.Now;
-        var mockRawDataFile = SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
+        var mockRawDataFile = MockRawDataFiles.SetupMockRawDataFile(true, false, creationDate, modifiedDate, 60, filePath);
 
         // Act
         var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
@@ -87,7 +66,7 @@ public class ThermoDatafileTests
         var filePath = "testFilePath.raw";
         var creationDate = DateTime.Now;
         var modifiedDate = DateTime.Now;
-        var mockRawDataFile = SetupMockRawDataFile(false, true, creationDate, modifiedDate, 60, filePath, "File read error");
+        var mockRawDataFile = MockRawDataFiles.SetupMockRawDataFile(false, true, creationDate, modifiedDate, 60, filePath, "File read error");
 
         // Act
         var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);
@@ -104,7 +83,7 @@ public class ThermoDatafileTests
         var filePath = "testFilePath.raw";
         var creationDate = DateTime.Now;
         var modifiedDate = DateTime.Now;
-        var mockRawDataFile = SetupMockRawDataFile(false, false, creationDate, modifiedDate, 60, filePath);
+        var mockRawDataFile = MockRawDataFiles.SetupMockRawDataFile(false, false, creationDate, modifiedDate, 60, filePath);
 
         // Act
         var thermoDatafile = new ThermoDatafile(mockRawDataFile.Object);

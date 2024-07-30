@@ -12,7 +12,6 @@ public class ThermoDatafile : IDatafile
     public DateTime EndTime { get; }
     public int DurationMinutes { get; }
 
-    public ThermoDatafile(string filePath) : this(RawFileReaderAdapter.FileFactory(filePath)) { }
 
     public ThermoDatafile(IRawDataExtended rdf)
     {
@@ -25,6 +24,7 @@ public class ThermoDatafile : IDatafile
         EndTime = StartTime.AddMinutes(DurationMinutes);
     }
 
+    public ThermoDatafile(string filePath) : this(RawFileReaderAdapter.FileFactory(filePath)) { }
 
     private bool CheckReadyToProcess()
     {
