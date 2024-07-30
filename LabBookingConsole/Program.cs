@@ -57,7 +57,7 @@ foreach (IBooking booking in bookingsForProject)
         bool task = await booking.MakeBookingAsync();
         if (!task)
         {
-            Console.WriteLine($"there was an error making the booking for project {booking.ProjectCode}:git s");
+            Console.WriteLine($"there was an error making the booking for project {booking.ProjectCode}:");
             Console.WriteLine($"\t{booking.BookingError}");
         }
     }
