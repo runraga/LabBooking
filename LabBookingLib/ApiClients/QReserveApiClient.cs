@@ -41,7 +41,7 @@ public class QReserveApiClient : IApiClient
         }
         catch (HttpRequestException e)
         {
-            throw new ApiErrorException(e.StatusCode.HasValue ? (int)e.StatusCode.Value : 0, "Request error.", e);
+            throw new ApiErrorException(e.StatusCode.HasValue ? (int)e.StatusCode.Value : 0, "Http Request error. There was a problem contacting the booking server.", e);
         }
         catch (Exception e)
         {
