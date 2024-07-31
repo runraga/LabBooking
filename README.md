@@ -6,7 +6,7 @@ A C#/.NET 8 project developed to coordinate and automate recording of laboratory
 
 ### Languages used
 
-- C#
+- C-Sharp
 
 ### Overview
 
