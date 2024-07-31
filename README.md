@@ -2,7 +2,7 @@
 
 ### Short description
 
-A C#/.NET 8 project developed to coordinate and automate recording of laboratory instrument usage using third-party APIs to process data proprietary data files and HTTP booking system end points.
+A C-Sharp/.NET 8 project developed to coordinate and automate recording of laboratory instrument usage using third-party APIs to process data proprietary data files and HTTP booking system end points.
 
 ### Languages used
 
@@ -19,4 +19,3 @@ Instrument vendor libraries are used to access proprietary data files to determi
 - Additional IBooking imlpementations for development and QC acquisitions
 - Add data file back up feature to archive recorded data on remote data repository
 - Additional IInstrument implementation for different vendor instruments
-
