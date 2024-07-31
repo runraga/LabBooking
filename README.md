@@ -1,19 +1,22 @@
-# Portfolio Website Backend
+# Lab Instrument Booking
 
 ### Short description
 
-An express.js backend API for serving the portfolio website. The API pulls data from public GitHib repos to serve the Project cards.
+A C#/.NET 8 project developed to coordinate and automate recording of laboratory instrument usage using third-party APIs to process data proprietary data files and HTTP booking system end points.
 
 ### Languages used
 
-- JavaScript
-- GitHub Workflow
+- C#
 
 ### Overview
 
-I built this API to serve the portfolio website projects by pulling data from public GitHub repos. I separated it out from the front end website to avoid exposing the GitHub API key which is needed for subsequent calls to pull the README contents and project graphic. It also gave me an oppurtunity to play with full-stack development so I have an appreciation of the challenges of getting front-end and back-end working in harmony. For example I now have a really good understanding of cross origin resource sharing and intricacies of how requests to hosted websites are handled.
+This script was intially developed in my previous role to coordinate recording of instrument usage on our highest throughput laboratory instrument. The app has been completely refactored using an object-oriented approach with test driven development using xUnit and Moq, where needed.
+
+Instrument vendor libraries are used to access proprietary data files to determine acquisition times and overall project acquisition length. Booking system API endpoints are exploited to determine user id, applicable charge rate and account code before placing a booking based on actual isntrument usage. A lightweight API was separately developed to replicate the API of the previously used commercial booking system.
 
 ### Future Features
 
-- Add additional API endpoints to reduce complexity of the returned data.
+- Additional IBooking imlpementations for development and QC acquisitions
+- Add data file back up feature to archive recorded data on remote data repository
+- Additional IInstrument implementation for different vendor instruments
 
